@@ -1,0 +1,2728 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealPRO - Professional AI Healthcare Diagnostic Assistant</title>
+  
+  <!-- Typography & Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js & jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* ── DESIGN SYSTEM & CSS VARIABLES ── */
+    :root {
+      /* Theme 1: Clinical Cyber (Default Dark) */
+      --bg: #070c19;
+      --surface: #0f182e;
+      --surface-hover: #162444;
+      --border: rgba(0, 229, 255, 0.15);
+      --border-focus: #00e5ff;
+      --primary: #00e5ff;
+      --primary-dim: rgba(0, 229, 255, 0.08);
+      --primary-glow: rgba(0, 229, 255, 0.25);
+      --accent-green: #00e676;
+      --accent-green-dim: rgba(0, 230, 118, 0.1);
+      --accent-amber: #ffb300;
+      --accent-amber-dim: rgba(255, 179, 0, 0.1);
+      --accent-red: #ff1744;
+      --accent-red-dim: rgba(255, 23, 68, 0.1);
+      --text: #f1f5f9;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
+      --font-head: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Theme 2: Nordic Slate (Minimalist Slate/Mint) */
+    body.theme-nordic-slate {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: rgba(148, 163, 184, 0.18);
+      --border-focus: #38bdf8;
+      --primary: #38bdf8;
+      --primary-dim: rgba(56, 189, 248, 0.08);
+      --primary-glow: rgba(56, 189, 248, 0.25);
+      --accent-green: #34d399;
+      --accent-green-dim: rgba(52, 211, 153, 0.1);
+      --accent-amber: #fbbf24;
+      --accent-amber-dim: rgba(251, 191, 36, 0.1);
+      --accent-red: #f87171;
+      --accent-red-dim: rgba(248, 113, 113, 0.1);
+      --text: #f8fafc;
+      --text-muted: #64748b;
+      --text-dim: #cbd5e1;
+      --shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Theme 3: Emerald Clean (Clinical Light) */
+    body.theme-emerald-clean {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --border: rgba(15, 118, 110, 0.15);
+      --border-focus: #0f766e;
+      --primary: #0f766e;
+      --primary-dim: rgba(15, 118, 110, 0.08);
+      --primary-glow: rgba(15, 118, 110, 0.25);
+      --accent-green: #10b981;
+      --accent-green-dim: rgba(16, 185, 129, 0.1);
+      --accent-amber: #d97706;
+      --accent-amber-dim: rgba(217, 119, 6, 0.1);
+      --accent-red: #dc2626;
+      --accent-red-dim: rgba(220, 38, 38, 0.1);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #475569;
+      --shadow: 0 10px 25px rgba(15, 118, 110, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    /* Theme 4: Sunset Wellness (Warm Mode) */
+    body.theme-sunset-wellness {
+      --bg: #120b1e;
+      --surface: #1d1233;
+      --surface-hover: #291b49;
+      --border: rgba(251, 113, 133, 0.15);
+      --border-focus: #fb7185;
+      --primary: #fb7185;
+      --primary-dim: rgba(251, 113, 133, 0.08);
+      --primary-glow: rgba(251, 113, 133, 0.25);
+      --accent-green: #34d399;
+      --accent-green-dim: rgba(52, 211, 153, 0.1);
+      --accent-amber: #fbbf24;
+      --accent-amber-dim: rgba(251, 191, 36, 0.1);
+      --accent-red: #f43f5e;
+      --accent-red-dim: rgba(244, 63, 94, 0.1);
+      --text: #fae8ff;
+      --text-muted: #a21caf;
+      --text-dim: #d8b4fe;
+      --shadow: 0 8px 30px rgba(251, 113, 133, 0.06);
+    }
+
+    /* ── BASE & LAYOUT ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Backdrop lighting gradients */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 10% 10%, var(--primary-dim) 0%, transparent 45%),
+        radial-gradient(circle at 90% 90%, var(--accent-green-dim) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ── HEADER NAVIGATION ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 30px;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--primary), var(--accent-green));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 20px;
+      color: #070c19;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .logo-text h1 {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text h1 span {
+      background: linear-gradient(90deg, var(--primary), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Server status indicator */
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+      animation: pulse 1.8s infinite;
+    }
+
+    .status-dot.online {
+      background: var(--accent-green);
+    }
+
+    .status-dot.offline {
+      background: var(--accent-red);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.15); }
+    }
+
+    .theme-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .theme-select:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* ── TABS NAVIGATION ── */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .nav-tab {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+    }
+
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 99px 99px 0 0;
+      box-shadow: 0 -2px 10px var(--primary-glow);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STATS DASHBOARD BAR ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      background: var(--surface-hover);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--border-color, var(--primary));
+    }
+
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-color, var(--primary));
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── WORKSPACE GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1080px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .stats-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ── CARD COMPONENTS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+      transition: border-color 0.3s ease;
+    }
+
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .card-title span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-icon {
+      font-size: 1.3rem;
+    }
+
+    .card-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    /* ── AI CHATBOT INTERFACE ── */
+    .chat-box {
+      height: 360px;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-box::-webkit-scrollbar, .history-list::-webkit-scrollbar {
+      width: 5px;
+    }
+    .chat-box::-webkit-scrollbar-track, .history-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .chat-box::-webkit-scrollbar-thumb, .history-list::-webkit-scrollbar-thumb {
+      background: var(--primary-dim);
+      border-radius: 99px;
+    }
+
+    .bubble {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    .bubble.bot {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      align-self: flex-start;
+      border-bottom-left-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .bubble.user {
+      background: linear-gradient(135deg, var(--primary), var(--primary-glow));
+      color: #070c19;
+      font-weight: 600;
+      align-self: flex-end;
+      border-bottom-right-radius: 3px;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .chat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .chip:hover {
+      background: var(--primary-dim);
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 14px;
+      width: fit-content;
+      align-self: flex-start;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .chat-input-row input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-glow));
+      color: #070c19;
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: none;
+    }
+
+    .autofill-banner {
+      background: var(--primary-dim);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      display: none;
+      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .autofill-banner-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RISK ESTIMATOR CLINICAL FORM ── */
+    .form-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-dim);
+    }
+
+    .input-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      display: none;
+      transition: var(--transition);
+    }
+
+    .badge-normal { background: var(--accent-green-dim); color: var(--accent-green); }
+    .badge-warn { background: var(--accent-amber-dim); color: var(--accent-amber); }
+    .badge-danger { background: var(--accent-red-dim); color: var(--accent-red); }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .bmi-calc-toggle {
+      font-size: 0.72rem;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .bmi-calc-drawer {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 16px;
+      display: none;
+      animation: slideIn 0.2s ease;
+    }
+
+    .bmi-calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .bmi-calc-grid label {
+      font-size: 0.65rem;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* ── RESULTS CARD (RING DIAL & REC) ── */
+    .result-box {
+      margin-top: 24px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      display: none;
+      animation: slideIn 0.4s ease;
+    }
+
+    .result-box.show {
+      display: block;
+    }
+
+    .risk-header-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .risk-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.3rem;
+      border: 4px solid var(--border-focus);
+      background: rgba(255, 255, 255, 0.02);
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .risk-ring .ring-label {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .risk-scale {
+      flex: 1;
+    }
+
+    .risk-scale-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .risk-scale-track {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .risk-scale-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .risk-scale-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .rec-box {
+      font-size: 0.84rem;
+      line-height: 1.55;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 4px solid var(--primary);
+      color: var(--text-dim);
+    }
+
+    /* Emergency warning banner style */
+    .emergency-banner {
+      display: none;
+      background: var(--accent-red-dim);
+      border: 2px solid var(--accent-red);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: 16px;
+      align-items: flex-start;
+      gap: 14px;
+      animation: emergencyPulse 1.2s ease-in-out infinite;
+    }
+    .emergency-banner.show {
+      display: flex;
+    }
+    @keyframes emergencyPulse {
+      0%, 100% { border-color: var(--accent-red); background: var(--accent-red-dim); }
+      50% { border-color: #ff5252; background: rgba(255, 23, 68, 0.22); }
+    }
+    .emergency-icon { font-size: 1.6rem; flex-shrink: 0; animation: wobble 1s infinite; }
+    @keyframes wobble {
+      0%, 100% { transform: rotate(0); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
+    }
+    .emergency-text h4 { font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; color: #fca5a5; margin-bottom: 4px; }
+    .emergency-text p { font-size: 0.8rem; color: #fca5a5; line-height: 1.4; }
+
+    /* Doctor Recommendation Card */
+    .doctor-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-top: 16px;
+      transition: var(--transition);
+    }
+    .doctor-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--primary);
+    }
+    .doctor-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary-dim);
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .doctor-info h4 {
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .doctor-info p {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    .doctor-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+    /* Health Score Circular Dial */
+    .score-ring-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .score-ring {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+    }
+    .score-ring svg {
+      transform: rotate(-90deg);
+    }
+    .score-ring-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .score-ring-num small {
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    .score-factors {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .score-factor {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.76rem;
+    }
+    .score-factor-label {
+      width: 95px;
+      color: var(--text-dim);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .score-factor-bar {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .score-factor-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.8s ease;
+    }
+    .score-factor-val {
+      width: 25px;
+      text-align: right;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Clinical report styles */
+    .report-summary {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      line-height: 1.4;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+    .report-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 580px) {
+      .report-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .report-block {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+    }
+    .report-block h5 {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .report-block ul {
+      list-style: none;
+      padding: 0;
+    }
+    .report-block ul li {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      padding: 2px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .report-block ul li::before {
+      content: '•';
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .report-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .report-actions .btn {
+      padding: 8px 14px;
+      font-size: 0.8rem;
+    }
+
+    /* ── ANALYTICS PAGE ── */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-container {
+      position: relative;
+      height: 340px;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* ── CLINICAL HISTORY LIST ── */
+    .history-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .history-item:hover {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .history-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: 3px solid var(--primary);
+      flex-shrink: 0;
+    }
+
+    .history-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .history-item-title {
+      font-family: var(--font-head);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .history-item-meta {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item-rec {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 6px;
+      border-left: 2px solid rgba(255,255,255,0.1);
+      padding-left: 8px;
+    }
+
+    .delete-item-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: var(--transition);
+      padding: 4px;
+    }
+
+    .delete-item-btn:hover {
+      color: var(--accent-red);
+    }
+
+    .history-empty {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-muted);
+    }
+
+    .history-empty-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* ── WELLNESS HUB TAB ── */
+    .wellness-container {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .wellness-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wellness-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .wellness-checklist-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    .wellness-task {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: var(--transition);
+    }
+
+    .wellness-task:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .wellness-task input[type="checkbox"] {
+      margin-top: 3px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .wellness-task-text {
+      font-size: 0.84rem;
+      line-height: 1.4;
+      color: var(--text-dim);
+    }
+
+    .wellness-task input[type="checkbox"]:checked + .wellness-task-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    /* ── PRINT VIEW STYLING ── */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      body::before, .header-actions, .nav-tabs, .bmi-calc-toggle, .bmi-calc-drawer, 
+      .chat-chips, .chat-input-row, .chat-box, .btn, .delete-item-btn, .history-empty {
+        display: none !important;
+      }
+      .container {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .grid {
+        grid-template-columns: 1fr !important;
+      }
+      .card {
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        background: white !important;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+      }
+      .result-box {
+        display: block !important;
+        background: #f8f9fa !important;
+        border: 1px solid #ddd !important;
+      }
+      .history-list {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      .history-item {
+        border: 1px solid #eee !important;
+        background: white !important;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body class="theme-clinical-cyber">
+  <div class="container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="logo-block">
+        <div class="logo-icon">🫀</div>
+        <div class="logo-text">
+          <h1>Heal<span>PRO</span></h1>
+          <p>AI Healthcare Diagnostic Assistant</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="status-pill">
+          <div class="status-dot" id="serverStatusDot"></div>
+          <span id="serverStatusText">Connecting...</span>
+        </div>
+        <select class="theme-select" id="themeSelect" onchange="changeTheme(this.value)">
+          <option value="theme-clinical-cyber">Clinical Cyber (Dark)</option>
+          <option value="theme-nordic-slate">Nordic Slate (Neutral)</option>
+          <option value="theme-emerald-clean">Emerald Clean (Light)</option>
+          <option value="theme-sunset-wellness">Sunset Wellness (Warm)</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- STATS DASHBOARD BAR -->
+    <div class="stats-bar">
+      <div class="stat-card" style="--border-color: var(--primary); --text-color: var(--primary)">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-label">Total Screens</div>
+      </div>
+      <div class="stat-card" style="--border-color: var(--accent-red); --text-color: var(--accent-red)">
+        <div class="stat-num" id="statHigh">0</div>
+        <div class="stat-label">High Risk</div>
+      </div>
+      <div class="stat-card" style="--border-color: var(--accent-amber); --text-color: var(--accent-amber)">
+        <div class="stat-num" id="statMed">0</div>
+        <div class="stat-label">Moderate</div>
+      </div>
+      <div class="stat-card" style="--border-color: var(--accent-green); --text-color: var(--accent-green)">
+        <div class="stat-num" id="statLow">0</div>
+        <div class="stat-label">Low Risk</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('diagnostic-tab', this)">Diagnostic Portal</button>
+      <button class="nav-tab" onclick="switchTab('analytics-tab', this)">Analytics & History</button>
+      <button class="nav-tab" onclick="switchTab('wellness-tab', this)">Wellness Tracker</button>
+    </div>
+
+    <!-- TAB 1: DIAGNOSTIC PORTAL -->
+    <div class="tab-content active" id="diagnostic-tab">
+      <div class="grid">
+        
+        <!-- CHAT ASSISTANT -->
+        <div class="card">
+          <div class="card-title">
+            <span><span class="card-icon">💬</span>AI Triage Assistant</span>
+          </div>
+          <div class="card-sub">Describe your symptoms to discover diagnostic risk avenues or auto-fill clinical metrics.</div>
+          
+          <div class="chat-box" id="chatBox">
+            <div class="bubble bot">
+              Hello! I am HealPRO's triage companion. Tell me what symptoms you've experienced (e.g. fatigue, chest pain, swelling) or state metrics directly (e.g. "I am 52 with BP of 135").
+            </div>
+          </div>
+
+          <!-- Autofill suggestion helper -->
+          <div class="autofill-banner" id="autofillBanner">
+            <div class="autofill-banner-content">
+              <span id="autofillMessage">Metrics parsed! Apply to screening form?</span>
+              <button class="btn" style="padding: 4px 10px; font-size: 0.72rem;" onclick="applyAutofill()">Apply</button>
+            </div>
+          </div>
+
+          <div class="chat-chips">
+            <div class="chip" onclick="chatQuickMsg('I am experiencing extreme thirst, fatigue and frequent urination.')">Glycemic Issues 🥛</div>
+            <div class="chip" onclick="chatQuickMsg('I have chest tightness and get breathless easily after short walks.')">Cardio Discomfort 🫀</div>
+            <div class="chip" onclick="chatQuickMsg('I have had bad headaches, slight dizziness, and nosebleeds lately.')">Hypertensive Signs 🧠</div>
+            <div class="chip" onclick="chatQuickMsg('I notice swelling in my ankles and legs, and foamy urine.')">Renal Indicators 💧</div>
+          </div>
+
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Type your symptoms or ask a question..." onkeydown="handleChatKey(event)">
+            <button class="btn" id="sendChatBtn" onclick="sendChatMessage()">Send</button>
+          </div>
+        </div>
+
+        <!-- RISK ESTIMATOR -->
+        <div class="card">
+          <div class="card-title">
+            <span><span class="card-icon">🧬</span>Clinical Risk Calculator</span>
+            <button class="bmi-calc-toggle" onclick="toggleBmiCalc()">BMI Calculator Helper</button>
+          </div>
+          <div class="card-sub">Provide biometric and lab metrics for machine-learning diagnostic risk grading.</div>
+
+          <!-- BMI CALCULATOR DRAWER -->
+          <div class="bmi-calc-drawer" id="bmiCalcDrawer">
+            <div class="bmi-calc-grid">
+              <div>
+                <label for="calcHeight">Height (cm)</label>
+                <input type="number" id="calcHeight" placeholder="175" value="175">
+              </div>
+              <div>
+                <label for="calcWeight">Weight (kg)</label>
+                <input type="number" id="calcWeight" placeholder="70" value="70">
+              </div>
+              <button class="btn btn-secondary" style="padding: 10px;" onclick="calculateAndSetBmi()">Calculate</button>
+            </div>
+          </div>
+
+          <form id="estimatorForm" onsubmit="runAssessment(event)">
+            
+            <div class="form-group">
+              <div class="label-row">
+                <label for="diseaseType">Target Screening Condition</label>
+              </div>
+              <select id="diseaseType" onchange="onDiseaseChange()">
+                <option value="diabetes">Diabetes Mellitus</option>
+                <option value="heart">Heart Disease</option>
+                <option value="hypertension">Hypertension</option>
+                <option value="kidney">Kidney Disease</option>
+              </select>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="age">Age (Years)</label>
+                </div>
+                <input type="number" id="age" required min="1" max="120" value="45">
+              </div>
+              
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="bmi">Body Mass Index (BMI)</label>
+                  <span class="input-badge" id="badgeBmi">Normal</span>
+                </div>
+                <input type="number" step="0.1" id="bmi" required value="24.5" oninput="validateBmi()">
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="bloodPressure">Systolic Blood Pressure (mmHg)</label>
+                  <span class="input-badge" id="badgeBp">Normal</span>
+                </div>
+                <input type="number" id="bloodPressure" required value="120" oninput="validateBp()">
+              </div>
+              
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="labValue" id="labLabel">Glucose Level (mg/dL)</label>
+                  <span class="input-badge" id="badgeLab">Normal</span>
+                </div>
+                <input type="number" id="labValue" required value="105" oninput="validateLab()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="label-row">
+                <label for="familyHistory">Genetic Family History of Selected Disease</label>
+              </div>
+              <select id="familyHistory">
+                <option value="0">No hereditary history identified</option>
+                <option value="1">Direct relative history diagnosed</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn" id="assessBtn" style="width: 100%;">
+              <span>🧬</span> Evaluate Clinical Risk Profile
+            </button>
+          </form>
+
+          <!-- RESULTS BLOCK -->
+          <div class="result-box" id="resultBox">
+            
+            <div class="risk-header-row">
+              <div class="risk-ring" id="riskRing">
+                <span id="riskPercentText">0%</span>
+                <span class="ring-label">Risk</span>
+              </div>
+              <div class="risk-scale">
+                <div class="risk-scale-header">
+                  <span id="riskCategoryText">Low Risk</span>
+                  <span id="riskPercentText2">0%</span>
+                </div>
+                <div class="risk-scale-track">
+                  <div class="risk-scale-fill" id="riskScaleFill"></div>
+                </div>
+                <div class="risk-scale-label">Probability based on clinical models</div>
+              </div>
+            </div>
+
+            <div class="rec-box" id="recommendationText">
+              Provide assessment inputs above to generate custom healthcare guidelines.
+            </div>
+
+            <!-- Emergency Warning pulse banner -->
+            <div class="emergency-banner" id="emergencyBanner">
+              <div class="emergency-icon">🚨</div>
+              <div class="emergency-text">
+                <h4>CRITICAL RISK LEVEL DETECTED</h4>
+                <p>Your diagnostic profile indicates a highly elevated risk level. We urge you to seek professional medical attention immediately. Do not delay consultation.</p>
+              </div>
+            </div>
+
+            <!-- Specialist Recommendation Card -->
+            <div id="doctorRecContainer"></div>
+
+            <!-- Health Score Circular Dial Section -->
+            <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+              <h4 style="font-family: var(--font-head); font-size: 0.95rem; margin-bottom: 12px; color: var(--text)">AI Composite Health Score</h4>
+              <div class="score-ring-wrap">
+                <div class="score-ring">
+                  <svg width="110" height="110" viewBox="0 0 110 110">
+                    <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="8"/>
+                    <circle cx="55" cy="55" r="46" fill="none" id="scoreArc"
+                      stroke="var(--primary)" stroke-width="8"
+                      stroke-linecap="round"
+                      stroke-dasharray="289" stroke-dashoffset="289"
+                      style="transition: stroke-dashoffset 1.2s ease, stroke 0.5s ease"/>
+                  </svg>
+                  <div class="score-ring-num"><span id="scoreNum">—</span><small>/ 100</small></div>
+                </div>
+                <div class="score-factors" id="scoreFactors">
+                  <!-- Dynamic factors -->
+                </div>
+              </div>
+              <div id="scoreVerdict" style="font-size:0.8rem;color:var(--text-dim);padding:10px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm);border-left:3px solid var(--primary);margin-top:12px;"></div>
+            </div>
+
+            <!-- Personalized Clinical AI Report Section -->
+            <div id="reportSection" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+              <h4 style="font-family: var(--font-head); font-size: 0.95rem; margin-bottom: 12px; color: var(--text)">Personalised Clinical AI Report</h4>
+              <div id="reportArea">
+                <!-- report body -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ANALYTICS & HISTORY -->
+    <div class="tab-content" id="analytics-tab">
+      <div class="analytics-grid">
+        
+        <!-- CHART CARD -->
+        <div>
+          <div class="card-title" style="margin-bottom: 12px;">
+            <span><span class="card-icon">📈</span>Health Parameter Trendline</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- HISTORY LOG -->
+        <div class="card" style="width: 100%;">
+          <div class="history-card-header">
+            <div>
+              <h2 class="card-title"><span><span class="card-icon">📋</span>Assessment History Logs</span></h2>
+              <p class="card-sub" style="margin-bottom: 0;">Stored secure and locally in your browser storage.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.8rem;" onclick="exportReport()">Print Report</button>
+              <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.8rem; border-color: var(--accent-red); color: var(--accent-red);" onclick="clearAllHistory()">Clear Logs</button>
+            </div>
+          </div>
+
+          <div class="history-list" id="historyList">
+            <div class="history-empty">
+              <div class="history-empty-icon">📊</div>
+              No diagnostic evaluations registered yet. Run an analysis on the Diagnostic tab.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: WELLNESS CHECKLIST -->
+    <div class="tab-content" id="wellness-tab">
+      <div class="wellness-container">
+        
+        <!-- HIGHLIGHTED SUMMARY -->
+        <div class="wellness-sidebar">
+          <div class="card" style="width: 100%;">
+            <div class="card-title"><span><span class="card-icon">🎯</span>Latest Risk Summary</span></div>
+            <div class="card-sub" id="wellnessSummarySub">Submit an evaluation to customize your tracker checklist.</div>
+            <div id="wellnessSummaryDetails" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+              <!-- Dynamic details -->
+            </div>
+          </div>
+        </div>
+
+        <!-- WELLNESS CHECKLIST -->
+        <div class="wellness-checklist-card">
+          <div class="card-title" style="margin-bottom: 6px;">
+            <span><span class="card-icon">✅</span>Personalized Wellness Plan Checklists</span>
+          </div>
+          <p class="card-sub">Active tasks based on risk conditions evaluated in your session.</p>
+          
+          <div id="wellnessTasksList">
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+              Assess a condition in the Diagnostic Portal to generate customized wellness steps.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FRONTEND JAVASCRIPT STATE ENGINE ── -->
+  <script>
+    const API_BASE = "http://localhost:8000";
+    const STORE_KEY = 'healpro_enhanced_history_v3';
+    
+    // Core State
+    let state = {
+      history: JSON.parse(localStorage.getItem(STORE_KEY) || '[]'),
+      apiStatus: 'disconnected',
+      pendingAutofill: null,
+      activeTab: 'diagnostic-tab',
+      chart: null,
+      lastEntry: null,
+      lastReport: null
+    };
+
+    // ──────────────────────────────────────────────────────────────
+    // THEME SYSTEM
+    // ──────────────────────────────────────────────────────────────
+    function changeTheme(themeName) {
+      document.body.className = '';
+      document.body.classList.add(themeName);
+      localStorage.setItem('healpro_theme', themeName);
+    }
+
+    // Load theme on startup
+    const savedTheme = localStorage.getItem('healpro_theme') || 'theme-clinical-cyber';
+    changeTheme(savedTheme);
+    document.getElementById('themeSelect').value = savedTheme;
+
+    // ──────────────────────────────────────────────────────────────
+    // TABS SYSTEM
+    // ──────────────────────────────────────────────────────────────
+    function switchTab(tabId, tabBtn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      tabBtn.classList.add('active');
+      state.activeTab = tabId;
+
+      if (tabId === 'analytics-tab') {
+        setTimeout(renderTrendsChart, 50);
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // API CONNECTION VERIFICATION
+    // ──────────────────────────────────────────────────────────────
+    async function checkBackendConnection() {
+      const dot = document.getElementById('serverStatusDot');
+      const text = document.getElementById('serverStatusText');
+      try {
+        const res = await fetch(`${API_BASE}/`, { signal: AbortSignal.timeout(1500) });
+        if (res.ok) {
+          state.apiStatus = 'online';
+          dot.className = 'status-dot online';
+          text.textContent = 'API Server Connected';
+        } else {
+          throw new Error();
+        }
+      } catch (err) {
+        state.apiStatus = 'offline';
+        dot.className = 'status-dot offline';
+        text.textContent = 'Server Offline (Using Fallbacks)';
+      }
+    }
+
+    setInterval(checkBackendConnection, 5000);
+    checkBackendConnection();
+
+    // ──────────────────────────────────────────────────────────────
+    // LIVE VALIDATION BADGES
+    // ──────────────────────────────────────────────────────────────
+    function onDiseaseChange() {
+      const type = document.getElementById('diseaseType').value;
+      const labLabel = document.getElementById('labLabel');
+      const labInput = document.getElementById('labValue');
+
+      if (type === 'diabetes') {
+        labLabel.textContent = 'Fasting Glucose (mg/dL)';
+        labInput.value = '105';
+      } else if (type === 'heart') {
+        labLabel.textContent = 'Total Cholesterol (mg/dL)';
+        labInput.value = '195';
+      } else if (type === 'hypertension') {
+        labLabel.textContent = 'Clinical Glucose/Cholesterol (mg/dL)';
+        labInput.value = '100';
+      } else if (type === 'kidney') {
+        labLabel.textContent = 'Serum Glucose or Triglyceride (mg/dL)';
+        labInput.value = '115';
+      }
+      
+      validateBmi();
+      validateBp();
+      validateLab();
+    }
+
+    function updateBadge(badgeId, text, state) {
+      const badge = document.getElementById(badgeId);
+      badge.textContent = text;
+      badge.style.display = 'inline-block';
+      badge.className = 'input-badge';
+      if (state === 'normal') badge.classList.add('badge-normal');
+      else if (state === 'warn') badge.classList.add('badge-warn');
+      else if (state === 'danger') badge.classList.add('badge-danger');
+    }
+
+    function validateBmi() {
+      const val = parseFloat(document.getElementById('bmi').value);
+      if (isNaN(val) || val <= 0) {
+        document.getElementById('badgeBmi').style.display = 'none';
+        return;
+      }
+      if (val < 18.5) updateBadge('badgeBmi', 'Underweight ⚠️', 'warn');
+      else if (val < 25) updateBadge('badgeBmi', 'Healthy Range', 'normal');
+      else if (val < 30) updateBadge('badgeBmi', 'Overweight ⚠️', 'warn');
+      else updateBadge('badgeBmi', 'Obese Class 🚨', 'danger');
+    }
+
+    function validateBp() {
+      const val = parseInt(document.getElementById('bloodPressure').value);
+      if (isNaN(val) || val <= 0) {
+        document.getElementById('badgeBp').style.display = 'none';
+        return;
+      }
+      if (val < 120) updateBadge('badgeBp', 'Optimal', 'normal');
+      else if (val < 130) updateBadge('badgeBp', 'Elevated ⚠️', 'warn');
+      else if (val < 140) updateBadge('badgeBp', 'Stage 1 Hypertension 🚨', 'danger');
+      else updateBadge('badgeBp', 'Stage 2 Hypertension 🚨', 'danger');
+    }
+
+    function validateLab() {
+      const type = document.getElementById('diseaseType').value;
+      const val = parseInt(document.getElementById('labValue').value);
+      
+      if (isNaN(val) || val <= 0) {
+        document.getElementById('badgeLab').style.display = 'none';
+        return;
+      }
+
+      if (type === 'diabetes') {
+        if (val < 100) updateBadge('badgeLab', 'Normal', 'normal');
+        else if (val < 126) updateBadge('badgeLab', 'Prediabetic ⚠️', 'warn');
+        else updateBadge('badgeLab', 'Diabetic Range 🚨', 'danger');
+      } else if (type === 'heart') {
+        if (val < 200) updateBadge('badgeLab', 'Desirable', 'normal');
+        else if (val < 240) updateBadge('badgeLab', 'Borderline ⚠️', 'warn');
+        else updateBadge('badgeLab', 'High Risk 🚨', 'danger');
+      } else {
+        if (val < 110) updateBadge('badgeLab', 'Acceptable', 'normal');
+        else if (val < 140) updateBadge('badgeLab', 'Slightly Elevated ⚠️', 'warn');
+        else updateBadge('badgeLab', 'High 🚨', 'danger');
+      }
+    }
+
+    // Trigger validation on load
+    onDiseaseChange();
+
+    // ──────────────────────────────────────────────────────────────
+    // BMI CALCULATOR HELPER DRAWER
+    // ──────────────────────────────────────────────────────────────
+    function toggleBmiCalc() {
+      const drawer = document.getElementById('bmiCalcDrawer');
+      drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function calculateAndSetBmi() {
+      const height = parseFloat(document.getElementById('calcHeight').value);
+      const weight = parseFloat(document.getElementById('calcWeight').value);
+      if (height > 0 && weight > 0) {
+        const bmi = weight / ((height / 100) ** 2);
+        document.getElementById('bmi').value = bmi.toFixed(1);
+        validateBmi();
+        toggleBmiCalc();
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // AI CHATBOT FUNCTIONALITY
+    // ──────────────────────────────────────────────────────────────
+    function handleChatKey(e) {
+      if (e.key === 'Enter') sendChatMessage();
+    }
+
+    function appendBubble(text, source) {
+      const box = document.getElementById('chatBox');
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${source}`;
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+      box.appendChild(bubble);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function chatQuickMsg(text) {
+      document.getElementById('chatInput').value = text;
+      sendChatMessage();
+    }
+
+    function showTyping() {
+      const box = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.className = 'typing-indicator';
+      div.id = 'chatTyping';
+      div.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function hideTyping() {
+      const el = document.getElementById('chatTyping');
+      if (el) el.remove();
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendBubble(text, 'user');
+      input.value = '';
+
+      showTyping();
+      const sendBtn = document.getElementById('sendChatBtn');
+      sendBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        hideTyping();
+        appendBubble(data.response, 'bot');
+        
+        if (data.extracted_data && Object.keys(data.extracted_data).length > 0) {
+          state.pendingAutofill = data.extracted_data;
+          
+          if (data.suggested_disease) {
+            document.getElementById('diseaseType').value = data.suggested_disease;
+            onDiseaseChange();
+          }
+
+          const banner = document.getElementById('autofillBanner');
+          const bannerMsg = document.getElementById('autofillMessage');
+          const keys = Object.keys(data.extracted_data).map(k => k.replace('_', ' '));
+          bannerMsg.textContent = `Symptom variables found: [${keys.join(', ')}]. Apply to Calculator?`;
+          banner.style.display = 'block';
+        }
+      } catch (err) {
+        hideTyping();
+        appendBubble("Communication connection issue. I parsed symptoms locally: For chest discomfort seek cardio checks, for thirst seek diabetes screenings.", "bot");
+      }
+      sendBtn.disabled = false;
+    }
+
+    function applyAutofill() {
+      if (!state.pendingAutofill) return;
+      const data = state.pendingAutofill;
+
+      if (data.age !== undefined) document.getElementById('age').value = data.age;
+      if (data.bmi !== undefined) document.getElementById('bmi').value = data.bmi;
+      if (data.blood_pressure !== undefined) document.getElementById('bloodPressure').value = data.blood_pressure;
+      if (data.glucose_or_cholesterol !== undefined) document.getElementById('labValue').value = data.glucose_or_cholesterol;
+      if (data.family_history !== undefined) document.getElementById('familyHistory').value = data.family_history;
+
+      validateBmi();
+      validateBp();
+      validateLab();
+
+      document.getElementById('autofillBanner').style.display = 'none';
+      state.pendingAutofill = null;
+      appendBubble("Applied metrics to form! You can now run the assessment.", "bot");
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // DOCTOR RECOMMENDATIONS ENGINE
+    // ──────────────────────────────────────────────────────────────
+    const DOCTORS = {
+      diabetes: {
+        specialist: 'Endocrinologist',
+        icon: '🩺',
+        reason: 'Specialises in glycemic regulation, insulin resistance, and endocrine systems.',
+        when: 'Fasting glucose > 125 mg/dL, HbA1c elevation, or risk score > 35%.',
+        urgency: { high: 'Urgent (Schedule within 7 days)', moderate: 'Within 2-4 weeks', low: 'Routine review' }
+      },
+      heart: {
+        specialist: 'Cardiologist',
+        icon: '❤️',
+        reason: 'Specialises in coronary circulation, cardiac muscles, and electrical conduction pathways.',
+        when: 'Systolic BP > 140 mmHg, total cholesterol > 240 mg/dL, or risk score > 35%.',
+        urgency: { high: 'Urgent (Consult immediately)', moderate: 'Within 1-2 weeks', low: 'Routine check' }
+      },
+      hypertension: {
+        specialist: 'Cardiovascular / BP Specialist',
+        icon: '🧠',
+        reason: 'Specialises in vascular dynamics, arterial pressure regulation, and vascular resistance.',
+        when: 'Ambulatory systolic BP > 140 mmHg, persistent headache or vascular load signs.',
+        urgency: { high: 'Urgent (BP check required)', moderate: 'Within 2 weeks', low: 'Routine review' }
+      },
+      kidney: {
+        specialist: 'Nephrologist',
+        icon: '💧',
+        reason: 'Specialises in renal clearance, glomerular filtration, and target-organ protection.',
+        when: 'Glomerular clearance index drops, serum creatinine elevations, or risk score > 35%.',
+        urgency: { high: 'Urgent nephrology review', moderate: 'Within 2-3 weeks', low: 'Annual check' }
+      }
+    };
+
+    function renderDoctorRec(disease, riskLevel) {
+      const container = document.getElementById('doctorRecContainer');
+      const d = DOCTORS[disease];
+      if (!d) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const levelColors = {
+        high: 'var(--accent-red)',
+        moderate: 'var(--accent-amber)',
+        low: 'var(--accent-green)'
+      };
+      const color = levelColors[riskLevel];
+
+      container.innerHTML = `
+        <div class="doctor-card">
+          <div class="doctor-avatar">${d.icon}</div>
+          <div class="doctor-info">
+            <h4>Recommended Specialist: ${d.specialist}</h4>
+            <p>${d.reason}</p>
+            <p style="margin-top:4px;font-size:0.72rem;color:var(--text-muted)">Indications: ${d.when}</p>
+            <span class="doctor-badge" style="background:${color}1a;color:${color};border:1px solid ${color}44">
+              📅 Consult Timeline: ${d.urgency[riskLevel]}
+            </span>
+          </div>
+        </div>`;
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // AI HEALTH SCORE ENGINE
+    // ──────────────────────────────────────────────────────────────
+    function computeHealthScore(age, bmi, bp, lab, fh, disease) {
+      const factors = {};
+
+      // BMI factor
+      factors.bmi = bmi >= 18.5 && bmi <= 24.9 ? 100 :
+        bmi < 18.5 ? Math.max(0, 100 - (18.5 - bmi) * 8) :
+        Math.max(0, 100 - (bmi - 24.9) * 4);
+
+      // BP factor
+      factors.bp = bp < 120 ? 100 : bp <= 129 ? 85 : bp <= 139 ? 65 : bp <= 159 ? 40 : 15;
+
+      // Lab factor
+      if (disease === 'diabetes') {
+        factors.lab = lab < 100 ? 100 : lab <= 125 ? 70 : lab <= 199 ? 35 : 10;
+      } else if (disease === 'heart') {
+        factors.lab = lab < 200 ? 100 : lab <= 239 ? 75 : lab <= 299 ? 45 : 15;
+      } else if (disease === 'hypertension') {
+        factors.lab = lab < 200 ? 100 : lab <= 239 ? 70 : 35;
+      } else {
+        factors.lab = lab < 110 ? 100 : lab <= 140 ? 70 : 30;
+      }
+
+      // Age factor
+      factors.age = age < 30 ? 100 : age <= 45 ? 85 : age <= 60 ? 65 : 45;
+
+      // Family history penalty
+      factors.fh = fh ? 60 : 100;
+
+      const weights = { bmi: 0.25, bp: 0.25, lab: 0.25, age: 0.15, fh: 0.10 };
+      let total = 0;
+      for (const k in weights) {
+        total += factors[k] * weights[k];
+      }
+      return { score: Math.round(total), factors };
+    }
+
+    function renderHealthScore(age, bmi, bp, lab, fh, disease) {
+      const { score, factors } = computeHealthScore(age, bmi, bp, lab, fh, disease);
+
+      const arc = document.getElementById('scoreArc');
+      const circumference = 289;
+      const offset = circumference - (score / 100) * circumference;
+      arc.style.strokeDashoffset = offset;
+
+      const level = score >= 75 ? 'good' : score >= 50 ? 'moderate' : 'critical';
+      const colors = {
+        good: 'var(--accent-green)',
+        moderate: 'var(--accent-amber)',
+        critical: 'var(--accent-red)'
+      };
+      arc.style.stroke = colors[level];
+
+      document.getElementById('scoreNum').textContent = score;
+      document.getElementById('scoreNum').style.color = colors[level];
+
+      const labels = {
+        bmi: 'BMI Status',
+        bp: 'Blood Pressure',
+        lab: disease === 'diabetes' ? 'Glucose Level' : disease === 'heart' ? 'Cholesterol' : 'Lab Biomarker',
+        age: 'Age Baseline',
+        fh: 'Genetics'
+      };
+
+      document.getElementById('scoreFactors').innerHTML = Object.entries(factors).map(([k, v]) => {
+        const barColor = v >= 75 ? 'var(--accent-green)' : v >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)';
+        return `
+          <div class="score-factor">
+            <span class="score-factor-label">${labels[k]}</span>
+            <div class="score-factor-bar">
+              <div class="score-factor-fill" style="width: ${v}%; background: ${barColor}"></div>
+            </div>
+            <span class="score-factor-val">${Math.round(v)}</span>
+          </div>`;
+      }).join('');
+
+      const verdictText = score >= 80 ? '✅ Outstanding biomarker profile. Your biometric variables show excellent alignment with health guidelines.' :
+        score >= 60 ? '⚡ Good health score with mild risks. Minor dietary, BP, or exercise adjustments can raise your wellness index.' :
+        score >= 45 ? '⚠️ Multiple metrics are out of normal range. Active clinical tracking and doctor consultation are advised.' :
+        '🔴 Critical health score. Several bio-markers are high. Schedule professional clinical reviews immediately.';
+      
+      document.getElementById('scoreVerdict').textContent = verdictText;
+      document.getElementById('scoreVerdict').style.borderLeftColor = colors[level];
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // PERSONALIZED CLINICAL REPORT ENGINE
+    // ──────────────────────────────────────────────────────────────
+    function generateLocalReportData(disease, age, bmi, bp, lab, fh, risk) {
+      const level = risk >= 65 ? 'High' : risk >= 35 ? 'Moderate' : 'Low';
+      const next_checkup = risk >= 65 ? 'Within 7 days' : risk >= 35 ? 'Within 30 days' : 'Within 6 months';
+      
+      const causes = [];
+      if (bmi > 30) causes.push("Obesity (BMI > 30)");
+      else if (bmi > 27) causes.push("Overweight (BMI 27–30)");
+      if (fh) causes.push("Genetic / family history of condition");
+      if (bp > 140) causes.push("Stage 2 hypertension (BP > 140 mmHg)");
+      else if (bp > 130) causes.push("Elevated blood pressure (BP 130–140 mmHg)");
+      
+      if (disease === "diabetes" && lab > 125) causes.push("High fasting glucose (> 125 mg/dL — pre-diabetic range)");
+      else if (disease === "diabetes" && lab > 100) causes.push("Borderline fasting glucose (100–125 mg/dL)");
+      else if (disease === "heart" && lab > 239) causes.push("High LDL cholesterol (> 239 mg/dL)");
+      else if (disease === "heart" && lab > 199) causes.push("Borderline cholesterol (200–239 mg/dL)");
+      else if (disease === "hypertension" && lab > 200) causes.push("Elevated cholesterol contributing to vascular resistance");
+      else if (disease === "kidney" && lab > 150) causes.push("Elevated metabolic markers");
+      
+      if (age > 55) causes.push("Advanced age (> 55 years) — increased baseline risk");
+      else if (age > 40) causes.push("Age over 40 — moderate baseline risk factor");
+      
+      if (causes.length === 0) causes.push("No single dominant risk factor identified; combination of mild indicators");
+      
+      let recommendations = [];
+      let lifestyle = [];
+      
+      if (disease === "diabetes") {
+        recommendations = [
+          "Consult an Endocrinologist for HbA1c and oral glucose tolerance testing",
+          "Reduce intake of refined sugars and high-glycaemic carbohydrates",
+          "Maintain fasting blood glucose below 100 mg/dL through diet and exercise",
+          "Perform at least 150 minutes of moderate aerobic activity per week",
+        ];
+        lifestyle = [
+          "Switch to a low-GI diet (whole grains, legumes, leafy greens)",
+          "Maintain consistent sleep schedule — poor sleep raises blood sugar",
+          "Avoid sugary beverages; replace with water or unsweetened drinks",
+        ];
+      } else if (disease === "heart") {
+        recommendations = [
+          "Consult a Cardiologist for ECG, lipid panel, and cardiovascular risk scoring",
+          "Reduce saturated fat, trans fat, and dietary sodium intake",
+          "Engage in moderate-intensity cardio exercise 5 days per week",
+          "Monitor blood pressure and cholesterol at least every 3 months",
+        ];
+        lifestyle = [
+          "Follow a Mediterranean or DASH diet for cardiovascular protection",
+          "Quit smoking and limit alcohol to reduce vascular inflammation",
+          "Manage chronic stress through mindfulness or structured relaxation",
+        ];
+      } else if (disease === "hypertension") {
+        recommendations = [
+          "Consult a physician for ambulatory blood pressure monitoring",
+          "Reduce daily sodium intake below 1500 mg",
+          "Monitor blood pressure twice daily and maintain a log",
+          "Avoid NSAIDs (e.g. ibuprofen) which can raise blood pressure",
+        ];
+        lifestyle = [
+          "Follow the DASH diet — high in potassium, magnesium, and fibre",
+          "Practice daily aerobic activity (walking, swimming) for at least 30 minutes",
+          "Limit caffeine and reduce chronic stress triggers",
+        ];
+      } else {
+        recommendations = [
+          "Consult a Nephrologist for eGFR and urinary albumin-creatinine ratio testing",
+          "Control blood pressure tightly (target < 130/80 mmHg)",
+          "Avoid frequent use of NSAID analgesics (e.g. ibuprofen, naproxen)",
+          "Monitor creatinine and electrolyte levels every 3–6 months",
+        ];
+        lifestyle = [
+          "Stay well hydrated (2–3 litres of water daily unless advised otherwise)",
+          "Limit high-protein and high-phosphorus foods to reduce kidney load",
+          "Avoid contrast dye procedures without nephrologist clearance",
+        ];
+      }
+      
+      const labelMap = {
+        diabetes: "Diabetes Mellitus",
+        heart: "Heart Disease",
+        hypertension: "Hypertension",
+        kidney: "Kidney Disease"
+      };
+      
+      const summary = `Patient (Age ${age}, BMI ${bmi}) presents with ${level.toLowerCase()} risk (${risk}%) for ${labelMap[disease]} based on submitted clinical indicators.`;
+      
+      return {
+        risk_level: level,
+        possible_causes: causes,
+        recommendations: recommendations,
+        lifestyle: lifestyle,
+        next_checkup: next_checkup,
+        summary: summary
+      };
+    }
+
+    function renderReportUI(r) {
+      const area = document.getElementById('reportArea');
+      area.innerHTML = `
+        <div class="report-summary">
+          <strong>Patient Summary:</strong> ${r.summary}
+        </div>
+        <div class="report-row">
+          <div class="report-block">
+            <h5>Potential Causes / Risk Factors</h5>
+            <ul>
+              ${(r.possible_causes || []).map(c => `<li>${c}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="report-block">
+            <h5>Clinical Recommendations</h5>
+            <ul>
+              ${(r.recommendations || []).map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        <div class="report-row">
+          <div class="report-block" style="grid-column: 1 / -1">
+            <h5>Suggested Lifestyle Adjustments</h5>
+            <ul>
+              ${(r.lifestyle || []).map(l => `<li>${l}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        <div class="report-actions">
+          <button class="btn" onclick="downloadPDF()">⬇ Download PDF Report</button>
+          <button class="btn btn-secondary" onclick="exportReport()">🖨 Print Report</button>
+          <button class="btn btn-secondary" onclick="shareReportLocal()">📋 Copy Report Text</button>
+        </div>
+      `;
+    }
+
+    function shareReportLocal() {
+      if (!state.lastReport || !state.lastEntry) return;
+      const e = state.lastEntry;
+      const r = state.lastReport;
+      const title = e.disease === 'diabetes' ? 'Diabetes Mellitus' : e.disease === 'heart' ? 'Heart Disease' : e.disease === 'hypertension' ? 'Hypertension' : 'Kidney Disease';
+      const text = `HealPRO AI Diagnostic Report\nTarget Condition: ${title}\nAI Estimated Risk: ${e.risk}%\nPatient details: Age ${e.age}, BMI ${e.bmi}, BP ${e.bp} mmHg\nSummary: ${r.summary}\nClinical Recommendations:\n${(r.recommendations || []).map(rc => `- ${rc}`).join('\n')}\nLifestyle Adjustments:\n${(r.lifestyle || []).map(ls => `- ${ls}`).join('\n')}\nTimeline: ${r.next_checkup}`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Report text copied to clipboard!");
+      }).catch(() => {
+        alert("Failed to copy report text to clipboard.");
+      });
+    }
+
+    function downloadPDF() {
+      if (!state.lastEntry || !state.lastReport) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const r = state.lastReport;
+      const e = state.lastEntry;
+      const level = r.risk_level || 'Unknown';
+
+      // Brand Header Banner
+      doc.setFillColor(7, 12, 25);
+      doc.rect(0, 0, 210, 32, 'F');
+      doc.setTextColor(0, 229, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(24);
+      doc.text('HealPRO', 15, 18);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text('AI-POWERED CLINICAL DIAGNOSTIC SCREENING REPORT', 15, 25);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 195, 20, { align: 'right' });
+
+      let y = 44;
+
+      // Risk score banner
+      const rColor = level === 'High' ? [255, 23, 68] : level === 'Moderate' ? [255, 179, 0] : [0, 230, 118];
+      doc.setFillColor(...rColor);
+      doc.roundedRect(15, y, 60, 20, 3, 3, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text(`${e.risk}% Risk`, 45, y + 11, { align: 'center' });
+      doc.setFontSize(9);
+      doc.text(`${level.toUpperCase()} RISK STATE`, 45, y + 16, { align: 'center' });
+
+      // Title & Summary
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      const title = e.disease === 'diabetes' ? 'Diabetes Mellitus' : e.disease === 'heart' ? 'Heart Disease' : e.disease === 'hypertension' ? 'Hypertension' : 'Kidney Disease';
+      doc.text(`Target Condition: ${title}`, 82, y + 6);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text(r.summary || '', 82, y + 12, { maxWidth: 112 });
+
+      y += 28;
+
+      // Patient biometric details
+      doc.setFillColor(248, 250, 252);
+      doc.rect(15, y, 86, 50, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.rect(15, y, 86, 50, 'S');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Patient Biometric Details', 20, y + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(51, 65, 85);
+      
+      const labLabelText = e.disease === 'diabetes' ? 'Glucose' : e.disease === 'heart' ? 'Cholesterol' : 'Lab Biomarker';
+      const fields = [
+        `Age: ${e.age} years`,
+        `Body Mass Index (BMI): ${e.bmi}`,
+        `Systolic BP: ${e.bp} mmHg`,
+        `${labLabelText}: ${e.lab} mg/dL`,
+        `Family Genetics History: ${e.fh ? 'Yes' : 'No'}`
+      ];
+      fields.forEach((l, idx) => {
+        doc.text(`- ${l}`, 20, y + 16 + (idx * 6.5));
+      });
+
+      // Key indicators
+      doc.setFillColor(248, 250, 252);
+      doc.rect(109, y, 86, 50, 'F');
+      doc.rect(109, y, 86, 50, 'S');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Key Risk Indicators Identified', 114, y + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(51, 65, 85);
+      const causes = r.possible_causes || [];
+      causes.slice(0, 5).forEach((cause, idx) => {
+        doc.text(`* ${cause}`, 114, y + 16 + (idx * 6.5), { maxWidth: 78 });
+      });
+
+      y += 58;
+
+      // Recommendations
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Clinical Screening Guidelines', 15, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(51, 65, 85);
+      const recs = r.recommendations || [];
+      recs.forEach(rec => {
+        doc.text(`• ${rec}`, 18, y, { maxWidth: 177 });
+        y += 6;
+      });
+
+      y += 4;
+
+      // Lifestyle adjustments
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Preventative Lifestyle Adjustments', 15, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(51, 65, 85);
+      const lifestyles = r.lifestyle || [];
+      lifestyles.forEach(life => {
+        doc.text(`• ${life}`, 18, y, { maxWidth: 177 });
+        y += 6;
+      });
+
+      y += 8;
+
+      // Checkup timeline block
+      doc.setFillColor(...rColor);
+      doc.rect(15, y, 180, 14, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('Recommended Consultation Timeline', 20, y + 9);
+      doc.text(r.next_checkup || 'Consult Provider', 190, y + 9, { align: 'right' });
+
+      // Footer disclaimer
+      doc.setFillColor(241, 245, 249);
+      doc.rect(0, 274, 210, 23, 'F');
+      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Disclaimer: This report is generated by HealPRO AI for informational screening purposes only.', 105, 280, { align: 'center' });
+      doc.text('It does not constitute definitive medical diagnosis or treatment advice.', 105, 283, { align: 'center' });
+      doc.text('Please consult a certified medical practitioner or specialist for clinical diagnostic validation.', 105, 286, { align: 'center' });
+
+      doc.save(`HealPRO_Report_${e.disease}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // RISK ESTIMATOR (BACKEND API + HEURISTIC FALLBACKS)
+    // ──────────────────────────────────────────────────────────────
+    async function runAssessment(e) {
+      e.preventDefault();
+      
+      const disease = document.getElementById('diseaseType').value;
+      const age = parseFloat(document.getElementById('age').value);
+      const bmi = parseFloat(document.getElementById('bmi').value);
+      const bp = parseFloat(document.getElementById('bloodPressure').value);
+      const lab = parseFloat(document.getElementById('labValue').value);
+      const fh = parseInt(document.getElementById('familyHistory').value);
+
+      const assessBtn = document.getElementById('assessBtn');
+      assessBtn.disabled = true;
+      assessBtn.innerHTML = 'Evaluating risk metrics...';
+
+      let riskPct, recommendation;
+
+      if (state.apiStatus === 'online') {
+        try {
+          const res = await fetch(`${API_BASE}/predict/${disease}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ age, bmi, blood_pressure: bp, glucose_or_cholesterol: lab, family_history: fh })
+          });
+          const data = await res.json();
+          riskPct = data.risk_percentage;
+          recommendation = data.recommendation;
+        } catch (err) {
+          console.error(err);
+          const local = localHeuristics(disease, age, bmi, bp, lab, fh);
+          riskPct = local.pct;
+          recommendation = local.rec;
+        }
+      } else {
+        const local = localHeuristics(disease, age, bmi, bp, lab, fh);
+        riskPct = local.pct;
+        recommendation = local.rec;
+      }
+
+      displayAssessmentResult(riskPct, recommendation);
+
+      // Render Emergency warning banner
+      const eb = document.getElementById('emergencyBanner');
+      riskPct >= 85 ? eb.classList.add('show') : eb.classList.remove('show');
+
+      // Render doctor recommendation specialist
+      renderDoctorRec(disease, getRiskLevel(riskPct));
+
+      // Render health score ring
+      renderHealthScore(age, bmi, bp, lab, fh, disease);
+
+      // Create history entry
+      const entry = {
+        id: Date.now().toString(),
+        disease, age, bmi, bp, lab, fh, risk: riskPct, rec: recommendation,
+        date: new Date().toLocaleString()
+      };
+      
+      state.lastEntry = entry;
+      saveToHistory(entry);
+
+      // Fetch personalization report from server or local
+      const reportArea = document.getElementById('reportArea');
+      reportArea.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted);">Generating your clinical report...<br><span style="display:inline-block; width:6px; height:6px; background:var(--primary); border-radius:50%; animation:typing 1.4s infinite; margin:0 3px;"></span></div>`;
+      
+      let reportData;
+      try {
+        const res = await fetch(`${API_BASE}/report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            age, bmi, blood_pressure: bp,
+            glucose_or_cholesterol: lab, family_history: fh,
+            disease, risk_percentage: riskPct
+          }),
+          signal: AbortSignal.timeout(3000)
+        });
+        reportData = await res.json();
+      } catch (err) {
+        reportData = generateLocalReportData(disease, age, bmi, bp, lab, fh, riskPct);
+      }
+
+      state.lastReport = reportData;
+      renderReportUI(reportData);
+
+      assessBtn.disabled = false;
+      assessBtn.innerHTML = '🧬 Evaluate Clinical Risk Profile';
+    }
+
+    function localHeuristics(disease, age, bmi, bp, lab, fh) {
+      let score = 0;
+      if (disease === 'diabetes') {
+        score += Math.min((lab - 70) / 130 * 40, 40);
+        score += Math.min((bmi - 18.5) / 21.5 * 20, 20);
+        score += Math.min((age - 20) / 60 * 15, 15);
+        score += bp > 140 ? 10 : bp > 130 ? 5 : 0;
+        score += fh * 15;
+      } else if (disease === 'heart') {
+        score += Math.min((lab - 130) / 200 * 35, 35);
+        score += bp > 160 ? 20 : bp > 140 ? 12 : bp > 130 ? 6 : 0;
+        score += Math.min((age - 30) / 50 * 20, 20);
+        score += bmi > 30 ? 10 : bmi > 27 ? 5 : 0;
+        score += fh * 15;
+      } else if (disease === 'hypertension') {
+        score += Math.min((bp - 90) / 80 * 50, 50);
+        score += Math.min((bmi - 18.5) / 21.5 * 20, 20);
+        score += Math.min((age - 20) / 60 * 20, 20);
+        score += fh * 10;
+      } else { // kidney
+        score += Math.min((bp - 90) / 80 * 30, 30);
+        score += Math.min((lab - 70) / 150 * 30, 30);
+        score += Math.min((age - 20) / 60 * 20, 20);
+        score += bmi > 30 ? 10 : 0;
+        score += fh * 10;
+      }
+      
+      const pct = Math.min(Math.max(Math.round(score), 3), 97);
+      
+      let rec = "";
+      if (pct >= 65) rec = `Elevated risk of ${disease}. Please schedule clinical tests and checkups with an appropriate physician promptly.`;
+      else if (pct >= 35) rec = `Moderate risk identified. Implementing lifestyle modifications, sodium control, and routine screening checks is advised.`;
+      else rec = `Optimal low risk category. Sustain daily physical logs, balanced meals, and regular annual diagnostics.`;
+
+      return { pct, rec };
+    }
+
+    function getRiskLevel(pct) {
+      if (pct >= 65) return 'high';
+      if (pct >= 35) return 'moderate';
+      return 'low';
+    }
+
+    function displayAssessmentResult(pct, rec) {
+      const resultBox = document.getElementById('resultBox');
+      const ringText = document.getElementById('riskPercentText');
+      const ring = document.getElementById('riskRing');
+      const percentText2 = document.getElementById('riskPercentText2');
+      const categoryText = document.getElementById('riskCategoryText');
+      const scaleFill = document.getElementById('riskScaleFill');
+      const recText = document.getElementById('recommendationText');
+
+      const level = getRiskLevel(pct);
+      const colorMap = {
+        high: 'var(--accent-red)',
+        moderate: 'var(--accent-amber)',
+        low: 'var(--accent-green)'
+      };
+      const textMap = {
+        high: 'High Risk (Immediate Action)',
+        moderate: 'Moderate Risk (Early Action)',
+        low: 'Low Risk (Maintenance)'
+      };
+
+      const color = colorMap[level];
+
+      ringText.textContent = `${pct}%`;
+      percentText2.textContent = `${pct}%`;
+      categoryText.textContent = textMap[level];
+      categoryText.style.color = color;
+      
+      ring.style.borderColor = color;
+      ring.style.color = color;
+      ring.style.boxShadow = `0 0 15px ${color}30`;
+      
+      scaleFill.style.width = `${pct}%`;
+      scaleFill.style.backgroundColor = color;
+      
+      recText.textContent = rec;
+      recText.style.borderLeftColor = color;
+      
+      resultBox.classList.add('show');
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // LOCAL HISTORY CONTROLS
+    // ──────────────────────────────────────────────────────────────
+    function saveToHistory(entry) {
+      state.history.unshift(entry);
+      localStorage.setItem(STORE_KEY, JSON.stringify(state.history));
+      
+      updateStatsPanel();
+      renderHistoryList();
+      updateWellnessPlan();
+    }
+
+    function deleteHistoryItem(id) {
+      state.history = state.history.filter(item => item.id !== id);
+      localStorage.setItem(STORE_KEY, JSON.stringify(state.history));
+      updateStatsPanel();
+      renderHistoryList();
+      updateWellnessPlan();
+      if (state.activeTab === 'analytics-tab') renderTrendsChart();
+    }
+
+    function clearAllHistory() {
+      if (confirm("Are you sure you want to delete all diagnostic history records?")) {
+        state.history = [];
+        localStorage.removeItem(STORE_KEY);
+        updateStatsPanel();
+        renderHistoryList();
+        updateWellnessPlan();
+        if (state.activeTab === 'analytics-tab') renderTrendsChart();
+      }
+    }
+
+    function updateStatsPanel() {
+      const total = state.history.length;
+      const high = state.history.filter(e => getRiskLevel(e.risk) === 'high').length;
+      const med = state.history.filter(e => getRiskLevel(e.risk) === 'moderate').length;
+      const low = state.history.filter(e => getRiskLevel(e.risk) === 'low').length;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statHigh').textContent = high;
+      document.getElementById('statMed').textContent = med;
+      document.getElementById('statLow').textContent = low;
+    }
+
+    function renderHistoryList() {
+      const list = document.getElementById('historyList');
+      if (state.history.length === 0) {
+        list.innerHTML = `
+          <div class="history-empty">
+            <div class="history-empty-icon">📊</div>
+            No diagnostic evaluations registered yet. Run an analysis on the Diagnostic tab.
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = state.history.map(item => {
+        const level = getRiskLevel(item.risk);
+        const color = level === 'high' ? 'var(--accent-red)' : level === 'moderate' ? 'var(--accent-amber)' : 'var(--accent-green)';
+        const title = item.disease === 'diabetes' ? 'Diabetes Mellitus' : item.disease === 'heart' ? 'Heart Disease' : item.disease === 'hypertension' ? 'Hypertension' : 'Kidney Disease';
+        const labName = item.disease === 'diabetes' ? 'Glucose' : item.disease === 'heart' ? 'Cholesterol' : 'Lab Metric';
+        
+        return `
+          <div class="history-item">
+            <div class="history-badge" style="border-color: ${color}; color: ${color}; box-shadow: 0 0 10px ${color}1a;">${item.risk}%</div>
+            <div class="history-content">
+              <div class="history-item-title">${title} <span style="font-size:0.75rem; color:${color}; font-weight:600; text-transform:uppercase;">(${level} Risk)</span></div>
+              <div class="history-item-meta">
+                Age: ${item.age} &bull; BMI: ${item.bmi} &bull; BP: ${item.bp} mmHg &bull; ${labName}: ${item.lab} &bull; Family History: ${item.fh ? 'Yes' : 'No'}
+              </div>
+              <div class="history-item-meta">${item.date}</div>
+              <div class="history-item-rec">${item.rec}</div>
+            </div>
+            <button class="delete-item-btn" onclick="deleteHistoryItem('${item.id}')" title="Delete record">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // CHART.JS ANALYTICS ENGINE
+    // ──────────────────────────────────────────────────────────────
+    function renderTrendsChart() {
+      const ctx = document.getElementById('trendsChart').getContext('2d');
+      
+      if (state.chart) {
+        state.chart.destroy();
+      }
+
+      if (state.history.length === 0) {
+        ctx.clearRect(0, 0, 400, 300);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('No history data to visualize yet.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+        return;
+      }
+
+      const logs = [...state.history].reverse();
+      const labels = logs.map(e => e.date.split(',')[0]);
+      const risks = logs.map(e => e.risk);
+      const bps = logs.map(e => e.bp);
+      const bmis = logs.map(e => e.bmi);
+      
+      const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#00e5ff';
+      const greenColor = getComputedStyle(document.body).getPropertyValue('--accent-green').trim() || '#00e676';
+      const amberColor = getComputedStyle(document.body).getPropertyValue('--accent-amber').trim() || '#ffb300';
+
+      state.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'AI Risk Probability (%)',
+              data: risks,
+              borderColor: primaryColor,
+              backgroundColor: `${primaryColor}1a`,
+              borderWidth: 3,
+              tension: 0.35,
+              fill: true,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Systolic BP (mmHg)',
+              data: bps,
+              borderColor: amberColor,
+              borderWidth: 2,
+              borderDash: [5, 5],
+              tension: 0.2,
+              fill: false,
+              yAxisID: 'y1'
+            },
+            {
+              label: 'BMI Status',
+              data: bmis,
+              borderColor: greenColor,
+              borderWidth: 2,
+              tension: 0.1,
+              fill: false,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: getComputedStyle(document.body).getPropertyValue('--text').trim() || '#f1f5f9',
+                font: { family: 'Plus Jakarta Sans', weight: 600 }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: 'rgba(255, 255, 255, 0.4)' }
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: primaryColor },
+              title: { display: true, text: 'Risk (%)', color: primaryColor },
+              min: 0,
+              max: 100
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+              title: { display: true, text: 'Biometrics Staging', color: 'rgba(255, 255, 255, 0.6)' }
+            }
+          }
+        }
+      });
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // WELLNESS HUB ENGINE
+    // ──────────────────────────────────────────────────────────────
+    function updateWellnessPlan() {
+      const summarySub = document.getElementById('wellnessSummarySub');
+      const summaryDetails = document.getElementById('wellnessSummaryDetails');
+      const taskList = document.getElementById('wellnessTasksList');
+
+      if (state.history.length === 0) {
+        summarySub.textContent = "Submit an evaluation to customize your tracker checklist.";
+        summaryDetails.innerHTML = "";
+        taskList.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            Assess a condition in the Diagnostic Portal to generate customized wellness steps.
+          </div>`;
+        return;
+      }
+
+      const latest = state.history[0];
+      const level = getRiskLevel(latest.risk);
+      const color = level === 'high' ? 'var(--accent-red)' : level === 'moderate' ? 'var(--accent-amber)' : 'var(--accent-green)';
+      
+      summarySub.textContent = "Insights based on your latest diagnostic profile.";
+      summaryDetails.innerHTML = `
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-md)">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Condition Screened</div>
+          <div style="font-family:var(--font-head); font-size:1.1rem; font-weight:700; margin-top:2px;">
+            ${latest.disease === 'diabetes' ? 'Diabetes Mellitus' : latest.disease === 'heart' ? 'Heart Disease' : latest.disease === 'hypertension' ? 'Hypertension' : 'Kidney Disease'}
+          </div>
+        </div>
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-md)">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Model Risk Grade</div>
+          <div style="font-family:var(--font-head); font-size:1.3rem; font-weight:800; color:${color}; margin-top:2px;">
+            ${latest.risk}% - ${level.toUpperCase()} RISK
+          </div>
+        </div>
+      `;
+
+      let tasks = [];
+      if (latest.disease === 'diabetes') {
+        tasks.push("Monitor blood glucose fasting levels every morning for the next 7 days.");
+        tasks.push("Reduce daily refined sugar intake below 25 grams.");
+        tasks.push("Engage in a 30-minute brisk walk immediately after dinner.");
+        if (latest.risk >= 35) {
+          tasks.push("Schedule a professional clinical HbA1c screening with an endocrinologist.");
+          tasks.push("Discuss starting a daily food intake and hydration log with a nutritionist.");
+        }
+      } else if (latest.disease === 'heart') {
+        tasks.push("Sustain standard sodium limits below 2,000 mg per day.");
+        tasks.push("Begin recording your morning and evening resting heart rates.");
+        tasks.push("Include foods rich in Omega-3 fatty acids (salmon, walnuts, flaxseeds) in your diet.");
+        if (latest.risk >= 35) {
+          tasks.push("Arrange a physician consultation for a resting ECG or a stress lipid panel check.");
+          tasks.push("Incorporate daily blood pressure screenings in your health tracking.");
+        }
+      } else if (latest.disease === 'hypertension') {
+        tasks.push("Log blood pressure reading twice daily (morning before eating, evening before bed).");
+        tasks.push("Begin structural sodium limitation (<1500mg/day) matching DASH guidelines.");
+        tasks.push("Complete at least 30 minutes of cardiovascular zone exercise (brisk walk, swim, cycle) today.");
+        if (latest.risk >= 35) {
+          tasks.push("Book a medical consultation to examine target BP levels and discuss management options.");
+          tasks.push("Incorporate cardiovascular stress reduction techniques (mindful breathing, meditation) for 15 mins daily.");
+        }
+      } else if (latest.disease === 'kidney') {
+        tasks.push("Stay consistently hydrated (target 2.5 to 3 liters of water per day).");
+        tasks.push("Ensure you avoid regular usage of over-the-counter pain medications (NSAIDs like ibuprofen).");
+        tasks.push("Limit excessive dietary protein intake to protect renal clearance load.");
+        if (latest.risk >= 35) {
+          tasks.push("Request a physician check for serum creatinine, eGFR, and microalbumin levels.");
+          tasks.push("Closely track and restrict blood pressure levels (<130/80 mmHg is typical for renal protection).");
+        }
+      }
+
+      taskList.innerHTML = tasks.map((task, index) => `
+        <div class="wellness-task">
+          <input type="checkbox" id="wTask-${index}">
+          <label class="wellness-task-text" for="wTask-${index}">${task}</label>
+        </div>
+      `).join('');
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // REPORT EXPORT & PRINT
+    // ──────────────────────────────────────────────────────────────
+    function exportReport() {
+      window.print();
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // INITIALIZATION
+    // ──────────────────────────────────────────────────────────────
+    updateStatsPanel();
+    renderHistoryList();
+    updateWellnessPlan();
+  </script>
+</body>
+
+</html>
