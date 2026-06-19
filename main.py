@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
+from fastapi.responses import FileResponse
 
 app = FastAPI(title="HealPRO AI Diagnostic Assistant Engine")
 
@@ -49,10 +50,7 @@ class ReportRequest(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {
-        "status": "HealPRO API is running",
-        "models_loaded": {name: model is not None for name, model in models.items()}
-    }
+    return FileResponse("index.html")
 
 @app.post("/predict/{disease}")
 def predict_disease(disease: str, data: DiagnosticData):
